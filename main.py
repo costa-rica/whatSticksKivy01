@@ -13,14 +13,27 @@ from kivymd.uix.card import MDCard
 from kivymd.uix.label import MDLabel
 import datetime;from datetime import timedelta
 
+from kivy.core.window import Window
+Window.size = (300, 500)
+
+from utils import add_activity_util, current_time_util
+
+from kivymd.uix.picker import MDDatePicker, MDTimePicker
+
+import time
+import pytz
+# import zoneinfo
+from pytz import timezone
+import datetime;from datetime import timedelta
 
 
-class LoginWindow(Screen):
+
+class WindowLogin(Screen):
     email = ObjectProperty(None)
     password = ObjectProperty(None)
     
     def __init__(self, **kwargs):
-        super(LoginWindow, self).__init__(**kwargs)
+        super(WindowLogin, self).__init__(**kwargs)
         self.app=WhatSticksHealth.get_running_app()
     
     def loginBtn(self):
@@ -40,8 +53,9 @@ class LoginWindow(Screen):
                     # WindowList.password1=self.password.text
                     
                     WindowAdd.user_name_str=i['username']
+                    WindowAdd.user_timezone=i['user_timezone']
                     WindowAdd.user_id_str=i['id']
-                    WindowAdd.email_str=i['email']
+                    # WindowAdd.email_str=i['email']
                     
                     self.reset()
                     
@@ -57,25 +71,59 @@ class LoginWindow(Screen):
 class WindowAdd(Screen):
     user_name = ObjectProperty(None)
     user_name_str=''
-    user_id = ObjectProperty(None)
     user_id_str=''
-    email = ObjectProperty(None)
-    email_str=''
-    
+    # email_str=''
+    user_timezone=''
+    title = ObjectProperty(None)
+    note = ObjectProperty(None)
+    # hour=ObjectProperty(None)
+    # minute=ObjectProperty(None)
+    time_thing=ObjectProperty(None)
     
     current=''
-    
-
-    
     def __init__(self, **kwargs):
         super(WindowAdd, self).__init__(**kwargs)
         self.app=WhatSticksHealth.get_running_app()
+        self.date_time_obj=datetime.datetime.now()
+        
+
 
 
     def on_enter(self,*args):
-        self.user_name.text='User Name: '+self.user_name_str
-        self.user_id.text='ID: '+str(self.user_id_str)
-        self.email.text='Email: '+self.email_str
+        self.user_name.text=self.user_name_str
+        # self.user_id.text='ID: '+str(self.user_id_str)
+        # self.email.text='Email: '+self.email_str
+        self.date_time_now=current_time_util(self.user_timezone)
+        self.ids.year.text=self.date_time_now[0]
+        self.ids.month.text=self.date_time_now[1]
+        self.ids.day.text=self.date_time_now[2]
+        
+        # self.ids.hour.text=self.date_time_now[3]
+        # self.ids.minute.text=self.date_time_now[4]
+        self.ids.time_thing.text=self.date_time_now[3]
+
+    def logOut(self):
+        self.app.sm.current = 'login'
+
+
+    def toWindowList(self):
+        self.app.sm.current = 'activity_list'
+        
+    def logActivity(self):
+        title=self.title.text
+        note=self.note.text
+        print(title,note)
+
+        respose=add_activity_util(title,note, self.user_id_str,
+            self.user_timezone)
+        print('minute::::',self.ids.minute.text)
+
+
+
+
+
+
+
 
 
 class WindowList(Screen):
@@ -163,12 +211,14 @@ class WhatSticksHealth(MDApp):#app
 
     def build(self):
         self.icon = "tgelogo20210830_v2.png"
-        self.theme_cls.theme_style ="Dark"
+        self.theme_cls.theme_style ="Light"
         self.theme_cls.primary_palette = "DeepOrange"
+
+        
 
         self.sm = WindowManager()
         
-        self.sm.add_widget(LoginWindow(name="login"))
+        self.sm.add_widget(WindowLogin(name="login"))
         self.sm.add_widget(WindowAdd(name="activity_add"))
         self.sm.add_widget(WindowList(name="activity_list"))
             

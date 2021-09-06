@@ -1,4 +1,6 @@
-<LoginWindow>:
+
+
+<WindowLogin>:
     name: "login"
 
 	email: email
@@ -46,6 +48,7 @@
         MDTextFieldRound:
             id: password
             hint_text: "password"
+			text: "test"
             icon_right: "eye-off"
             size_hint_x: None
             width: 200
@@ -74,45 +77,195 @@
 
 <WindowAdd>
 	user_name:user_name
-	user_id:user_id
-	email:email
+#	user_id:user_id
+#	email:email
+	title: title
+	note:note
+#	hour: hour
+#	minute:minute
+	month:month
+	day: day
+	year: year
+	time_thing:time_thing
 
 	MDCard
-		orientation: "vertical"
+        size_hint: None, None
+        size: root.width-20, root.height-20
+        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+        elevation: 10
+        #padding: 25
+        #spacing: 25
+        orientation: 'vertical'
+		#background_normal:''
 		md_bg_color: 127/255,160/255,189/255,1
+		
+		MDFloatLayout:
+			size: root.width, root.height
 
-		GridLayout:
-			cols:1
-				
+			Image:
+				id: avatar
+				size_hint: None, None
+				size: "37dp", "37dp"
+				source: "tgelogo20210830_v2.png"
+				pos_hint:{'x':.02,'y':.91}
+
+			MDIconButton:
+				icon: 'logout'
+				on_press: root.logOut()
+				#root = WindowAdd
+				pos_hint:{'x':.86,'y':.91}
+
+			MDIconButton:
+				icon: 'view-list'
+				on_press: root.toWindowList()
+				pos_hint:{'x':.73,'y':.91}
+
+			MDIconButton:
+				icon: 'notebook'
+#				on_press: root.toWindowList()
+				pos_hint:{'x':.6,'y':.91}
+
+#End of Navigation
+
+
+			Label:
+				text: 'Add Activity Window'
+				size_hint: None,None
+				pos_hint:{'x':.23,'y':.7}#{"x","y","top","bottom","left","right"}
+				font_size: 24
 
 			Label:
 				id: user_name
-				size_hint_y: .3
+				size_hint: None,None
+				pos_hint:{'x':.00,'y':.64}
+				font_size: 20
+
 				
+			MDTextField:
+				id: title
+				hint_text: "Activity Title"
+				mode: "rectangle"
+				size_hint: .75,.1
+				pos_hint:{'x':.1,'y':.58}
+				
+				#line_color_focus: 1, 1, 1, 1
+				#foreground_color:1,1,1,1
+				#background_color: 1, 1, 1, 1
+				#fill_color: 1, 1, 1, .4
 
-			Label:
-				id: user_id
-				size_hint_y: .3
+			MDTextField:
+				id: note
+				hint_text: "Activity Note"
+				mode: "rectangle"
+				size_hint: .75,.25
+				pos_hint:{'x':.1,'y':.29}
+				
+				#line_color_focus: 1, 1, 1, 1
+				#foreground_color:1,1,1,1
+				#background_color: 1, 1, 1, 1
+				#fill_color: 1, 1, 1, .4
 
-			Label:
-				id: email
-				size_hint_y: .3
+#Time
 
+			TextInput:
+				id: month
+				pos_hint:{'x':.1,'y':.2}
+				size_hint: .1,.04
+				border: (0,0,0,0)
+				padding: (3,1,0,0)
+				
 		
-			GridLayout:
-				cols:2
-				size_hint_y:2
-				Label:
-					size_hint_y:.5
-					text:'some label1'
-				Label:
-					size_hint_y:.5
-					text:'Some label2'
-				Button:
-					size_hint_y: 1
-					
-				Button:
-					size_hint_y: 1
+			Label:
+				text:'/'
+				size_hint: None,None
+				pos_hint:{'x':.008,'y':.117}
+				font_size: 17
+				color: 0,0,0,1
+
+
+			TextInput:
+				id: day
+				pos_hint:{'x':.2,'y':.2}
+				size_hint: .1,.04
+				border: (0,0,0,0)
+				padding: (3,1,0,0)
+
+				
+			
+			Label:
+				text:'/'
+				size_hint: None,None
+				pos_hint:{'x':.108,'y':.117}
+				font_size: 17
+				color: 0,0,0,1
+
+
+
+
+			TextInput:
+				id: year
+				pos_hint:{'x':.3,'y':.2}
+				size_hint: .13,.04
+				border: (0,0,0,0)
+				padding: (2,0,0,0)
+				
+#***Working here****	
+
+			#TextInput:
+				#id: hour
+				#pos_hint:{'x':.68,'y':.2}
+			#	size_hint: .07,.04
+			#	border: (0,0,0,0)
+			#	padding: (3,1,0,0)
+			#	halign:"right"
+#***Working here****	
+
+
+			#Label:
+			#	text:':'
+			#	size_hint: None,None
+			#	pos_hint:{'x':.59,'y':.12}
+			#	font_size: 17
+			#	color: 0,0,0,1
+
+			#TextInput:
+			#	id: minute
+			#	pos_hint:{'x':.79,'y':.2}
+			#	size_hint: .078,.04
+			#	border: (0,0,0,0)
+			#	padding: (3,1,0,0)
+
+			TextInput:
+				id: time_thing
+				pos_hint:{'x':.57,'y':.2}
+				size_hint: .23,.04
+				border: (0,0,0,0)
+				padding: (0,0,2,0)
+				halign:"right"
+
+
+#			MDRaisedButton:
+#				text: 'Date'
+#				pos_hint:{'x':.1,'y':.2}
+#				on_release: root.show_date_picker()
+				
+#			MDRaisedButton:
+#				text: 'Time'
+#				pos_hint:{'x':.6,'y':.2}
+#				on_release: root.show_time_picker()
+			
+
+
+
+			MDRoundFlatButton:
+				text: "Log Activity"
+				font_size: 12
+				pos_hint: {"x": 0.6,'y':.07}
+				on_press: root.logActivity()
+		
+
+			
+
 
 <WindowList>:
 	user_id: user_id
