@@ -1,4 +1,6 @@
-
+#:import Factory kivy.factory.Factory
+<TimePopup@Popup>
+	title: 'Date/Time Entered Wrong Format'
 
 <WindowLogin>:
     name: "login"
@@ -83,10 +85,11 @@
 	note:note
 #	hour: hour
 #	minute:minute
-	month:month
-	day: day
-	year: year
+#	month:month
+#	day: day
+#	year: year
 	time_thing:time_thing
+	date_thing:date_thing
 
 	MDCard
         size_hint: None, None
@@ -108,22 +111,20 @@
 				size: "37dp", "37dp"
 				source: "tgelogo20210830_v2.png"
 				pos_hint:{'x':.02,'y':.91}
-
+			MDIconButton:
+				icon: 'notebook'
+#				on_press: root.toWindowList()
+				pos_hint:{'x':.6,'y':.91}
+			MDIconButton:
+				icon: 'view-list'
+				on_press: root.toWindowList()
+				pos_hint:{'x':.73,'y':.91}
 			MDIconButton:
 				icon: 'logout'
 				on_press: root.logOut()
 				#root = WindowAdd
 				pos_hint:{'x':.86,'y':.91}
 
-			MDIconButton:
-				icon: 'view-list'
-				on_press: root.toWindowList()
-				pos_hint:{'x':.73,'y':.91}
-
-			MDIconButton:
-				icon: 'notebook'
-#				on_press: root.toWindowList()
-				pos_hint:{'x':.6,'y':.91}
 
 #End of Navigation
 
@@ -168,72 +169,12 @@
 #Time
 
 			TextInput:
-				id: month
-				pos_hint:{'x':.1,'y':.2}
-				size_hint: .1,.04
-				border: (0,0,0,0)
-				padding: (3,1,0,0)
-				
-		
-			Label:
-				text:'/'
-				size_hint: None,None
-				pos_hint:{'x':.008,'y':.117}
-				font_size: 17
-				color: 0,0,0,1
-
-
-			TextInput:
-				id: day
+				id: date_thing
 				pos_hint:{'x':.2,'y':.2}
-				size_hint: .1,.04
-				border: (0,0,0,0)
-				padding: (3,1,0,0)
-
-				
-			
-			Label:
-				text:'/'
-				size_hint: None,None
-				pos_hint:{'x':.108,'y':.117}
-				font_size: 17
-				color: 0,0,0,1
-
-
-
-
-			TextInput:
-				id: year
-				pos_hint:{'x':.3,'y':.2}
-				size_hint: .13,.04
+				size_hint: .3,.04
 				border: (0,0,0,0)
 				padding: (2,0,0,0)
-				
-#***Working here****	
-
-			#TextInput:
-				#id: hour
-				#pos_hint:{'x':.68,'y':.2}
-			#	size_hint: .07,.04
-			#	border: (0,0,0,0)
-			#	padding: (3,1,0,0)
-			#	halign:"right"
-#***Working here****	
-
-
-			#Label:
-			#	text:':'
-			#	size_hint: None,None
-			#	pos_hint:{'x':.59,'y':.12}
-			#	font_size: 17
-			#	color: 0,0,0,1
-
-			#TextInput:
-			#	id: minute
-			#	pos_hint:{'x':.79,'y':.2}
-			#	size_hint: .078,.04
-			#	border: (0,0,0,0)
-			#	padding: (3,1,0,0)
+				halign:"left"
 
 			TextInput:
 				id: time_thing
@@ -249,13 +190,6 @@
 #				pos_hint:{'x':.1,'y':.2}
 #				on_release: root.show_date_picker()
 				
-#			MDRaisedButton:
-#				text: 'Time'
-#				pos_hint:{'x':.6,'y':.2}
-#				on_release: root.show_time_picker()
-			
-
-
 
 			MDRoundFlatButton:
 				text: "Log Activity"

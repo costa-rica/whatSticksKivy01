@@ -2,7 +2,7 @@ from kivymd.app import MDApp
 # from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, ColorProperty
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 import requests
@@ -26,6 +26,11 @@ import pytz
 from pytz import timezone
 import datetime;from datetime import timedelta
 
+from kivy.factory import Factory
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.button import Button
+# from kivy.properties import (StringProperty, ObjectProperty, OptionProperty,
+                             # NumericProperty, ColorProperty)
 
 
 class WindowLogin(Screen):
@@ -40,23 +45,16 @@ class WindowLogin(Screen):
         response = requests.request('GET','http://api.what-sticks-health.com/get_users',
             auth=(self.email.text,self.password.text))
         
-        print('response.status_code:::', response.status_code)
+        print('Login: response.status_code:::', response.status_code)
         if response.status_code ==200:
             for i in json.loads(response.content.decode('utf-8')):
                 if i['email']==self.email.text:
-            
-                    # WindowList.current = self.email.text#get user for main window
-                    # WindowList.user_id1=i['id']
-                    # WindowList.user_name1=i['username']
-                    # WindowList.user_timezone1=i['user_timezone']
-                    # WindowList.email1=i['email']
-                    # WindowList.password1=self.password.text
                     
                     WindowAdd.user_name_str=i['username']
                     WindowAdd.user_timezone=i['user_timezone']
                     WindowAdd.user_id_str=i['id']
-                    # WindowAdd.email_str=i['email']
-                    
+                    WindowAdd.user_email=self.email.text
+                    WindowAdd.user_password=self.password.text
                     self.reset()
                     
                     #sm.current = 'main'
@@ -72,57 +70,57 @@ class WindowAdd(Screen):
     user_name = ObjectProperty(None)
     user_name_str=''
     user_id_str=''
-    # email_str=''
+    user_email=''
+    user_password=''
     user_timezone=''
     title = ObjectProperty(None)
     note = ObjectProperty(None)
-    # hour=ObjectProperty(None)
-    # minute=ObjectProperty(None)
     time_thing=ObjectProperty(None)
-    
     current=''
+    
     def __init__(self, **kwargs):
         super(WindowAdd, self).__init__(**kwargs)
         self.app=WhatSticksHealth.get_running_app()
         self.date_time_obj=datetime.datetime.now()
-        
-
-
 
     def on_enter(self,*args):
         self.user_name.text=self.user_name_str
         # self.user_id.text='ID: '+str(self.user_id_str)
         # self.email.text='Email: '+self.email_str
         self.date_time_now=current_time_util(self.user_timezone)
-        self.ids.year.text=self.date_time_now[0]
-        self.ids.month.text=self.date_time_now[1]
-        self.ids.day.text=self.date_time_now[2]
-        
-        # self.ids.hour.text=self.date_time_now[3]
-        # self.ids.minute.text=self.date_time_now[4]
-        self.ids.time_thing.text=self.date_time_now[3]
+        self.ids.date_thing.text=self.date_time_now[0]
+        self.ids.time_thing.text=self.date_time_now[1]
 
     def logOut(self):
         self.app.sm.current = 'login'
 
 
     def toWindowList(self):
+        WindowList.user_email=self.user_email
+        WindowList.user_password=self.user_password
+        WindowList.user_id_str=self.user_id_str
+        WindowList.user_name_str=self.user_name_str
         self.app.sm.current = 'activity_list'
-        
+
     def logActivity(self):
         title=self.title.text
         note=self.note.text
-        print(title,note)
+        
+        #combine date_thing adn time_thing into datetime object
+        try:
+            print('datetime_thing string:::',self.ids.date_thing.text +" "+ self.ids.time_thing.text)
+            datetime_thing=datetime.datetime.strptime(self.ids.date_thing.text +" "+ self.ids.time_thing.text,'%m/%d/%Y %I:%M %p')
+            add_activity_util(title, note,self.user_id_str,self.user_timezone,datetime_thing, self.user_email,self.user_password)
+            content=GridLayout(cols=1)
+            popup_success = Popup(title='Successfully submitted',size_hint=(None, None),
+                size=(256, 60),content=content, disabled=True,title_color = "green")
+            popup_success.open()
 
-        respose=add_activity_util(title,note, self.user_id_str,
-            self.user_timezone)
-        print('minute::::',self.ids.minute.text)
-
-
-
-
-
-
+        except ValueError:
+            content=GridLayout(cols=1)
+            popup_error = Popup(title='Date/Time Wrong Format',size_hint=(None, None), size=(256, 60),
+                content=content, disabled=True,title_color = "orange")
+            popup_error.open()
 
 
 
@@ -132,11 +130,11 @@ class WindowList(Screen):
     # user_timezone= ObjectProperty(None)
     # email = ObjectProperty(None)
     current = ""
-    user_id1=''
-    user_name1=''
+    user_id_str=''
+    user_name_str=''
     user_timezone1=''
-    email1=''
-    password1=''
+    user_email=''
+    user_password=''
     # print('email1:::',self.email1)
     
 
@@ -146,18 +144,29 @@ class WindowList(Screen):
         self.data_table=None
 
     def logOut(self):
-        sm.current = 'login'
+        self.app.sm.current = 'login'
 
     def on_enter(self,*args):
-        self.user_id.text='User ID: '+self.current
-        print('email1:::',self.email1)
+        print('args:::',*args)
+        self.user_id.text='User: '+self.user_name_str
+        print('user_email:::',self.user_email)
         
-        response = requests.request('GET','http://api.life-buddy.org/get_health_descriptions',
-            auth=(self.email1,self.password1))
+        url='https://api.what-sticks-health.com/get_health_descriptions/' + str(self.user_id_str)
+        print('url::',url)
+        print('self.user_email:::',self.user_email)
+        print('self.user_password:::',self.user_password)
+        response = requests.request('GET',url,auth=(self.user_email,self.user_password))
         print(response.status_code)
         #put data into list of tuples
+        response_decoded=response.content.decode('utf-8')
+        print('response:::', type(response_decoded),response_decoded)
+        
         response_data=json.loads(response.content.decode('utf-8'))
-        row_data_list=[("[size=12]"+self.convert_datetime(i['datetime_of_activity']),"[size=12]"+i['var_activity']) for i in response_data]
+        print('response_data:::',type(response_data),response_data)
+        print('response_data[datetime]:::',response_data['datetime_of_activity'])
+        row_data_list=[(self.convert_datetime(i['datetime_of_activity']),i['var_activity']) for i in response_data]
+        print('row_data_list:::',row_data_list)
+        # row_data_list=[("[size=12]"+self.convert_datetime(i['datetime_of_activity']),"[size=12]"+i['var_activity']) for i in response_data]
         
         self.data_table_card=MDDataTable(size_hint=(.6,.8),
             use_pagination=True,
@@ -166,6 +175,7 @@ class WindowList(Screen):
         self.add_widget(self.data_table_card)
 
     def convert_datetime(self,date_time_str):
+        print('are we even getting here????')
         try:
             date_time_obj = datetime.datetime.strptime(date_time_str, '%Y-%m-%dT%H:%M:%S.%f')
         except ValueError:
