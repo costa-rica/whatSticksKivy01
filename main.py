@@ -1,3 +1,6 @@
+import sys
+sys.path.append("_applibs")
+sys.path.append(".")
 from kivymd.app import MDApp
 # from kivy.app import App
 from kivy.lang import Builder
@@ -18,7 +21,7 @@ Window.size = (300, 500)
 
 from utils import add_activity_util, current_time_util
 
-from kivymd.uix.picker import MDDatePicker, MDTimePicker
+#from kivymd.uix.picker import MDDatePicker, MDTimePicker
 
 import time
 import pytz
@@ -36,32 +39,32 @@ from kivy.uix.button import Button
 class WindowLogin(Screen):
     email = ObjectProperty(None)
     password = ObjectProperty(None)
-    
+
     def __init__(self, **kwargs):
         super(WindowLogin, self).__init__(**kwargs)
         self.app=WhatSticksHealth.get_running_app()
-    
+
     def loginBtn(self):
         response = requests.request('GET','http://api.what-sticks-health.com/get_users',
             auth=(self.email.text,self.password.text))
-        
+
         print('Login: response.status_code:::', response.status_code)
         if response.status_code ==200:
             for i in json.loads(response.content.decode('utf-8')):
                 if i['email']==self.email.text:
-                    
+
                     WindowAdd.user_name_str=i['username']
                     WindowAdd.user_timezone=i['user_timezone']
                     WindowAdd.user_id_str=i['id']
                     WindowAdd.user_email=self.email.text
                     WindowAdd.user_password=self.password.text
                     self.reset()
-                    
+
                     #sm.current = 'main'
                     self.app.sm.current = 'activity_add'
         else:
             invalidLogin()
-            
+
     def reset(self):
         self.email.text=''
         self.password.text=''
@@ -77,7 +80,7 @@ class WindowAdd(Screen):
     note = ObjectProperty(None)
     time_thing=ObjectProperty(None)
     current=''
-    
+
     def __init__(self, **kwargs):
         super(WindowAdd, self).__init__(**kwargs)
         self.app=WhatSticksHealth.get_running_app()
@@ -105,7 +108,7 @@ class WindowAdd(Screen):
     def logActivity(self):
         title=self.title.text
         note=self.note.text
-        
+
         #combine date_thing adn time_thing into datetime object
         try:
             print('datetime_thing string:::',self.ids.date_thing.text +" "+ self.ids.time_thing.text)
@@ -136,7 +139,7 @@ class WindowList(Screen):
     user_email=''
     user_password=''
     # print('email1:::',self.email1)
-    
+
 
     def __init__(self, **kwargs):
         super(WindowList, self).__init__(**kwargs)
@@ -150,7 +153,7 @@ class WindowList(Screen):
         print('args:::',*args)
         self.user_id.text='User: '+self.user_name_str
         print('user_email:::',self.user_email)
-        
+
         url='https://api.what-sticks-health.com/get_health_descriptions/' + str(self.user_id_str)
         print('url::',url)
         print('self.user_email:::',self.user_email)
@@ -160,14 +163,14 @@ class WindowList(Screen):
         #put data into list of tuples
         response_decoded=response.content.decode('utf-8')
         print('response:::', type(response_decoded),response_decoded)
-        
+
         response_data=json.loads(response.content.decode('utf-8'))
         print('response_data:::',type(response_data),response_data)
         print('response_data[datetime]:::',response_data['datetime_of_activity'])
         row_data_list=[(self.convert_datetime(i['datetime_of_activity']),i['var_activity']) for i in response_data]
         print('row_data_list:::',row_data_list)
         # row_data_list=[("[size=12]"+self.convert_datetime(i['datetime_of_activity']),"[size=12]"+i['var_activity']) for i in response_data]
-        
+
         self.data_table_card=MDDataTable(size_hint=(.6,.8),
             use_pagination=True,
             column_data=[("[size=15]Date/Time", dp(50)),("[size=15]Exercise", dp(30))],
@@ -186,8 +189,8 @@ class WindowList(Screen):
 
 class WindowManager(ScreenManager):
     pass
-    
-    
+
+
 def invalidLogin():
     pop = Popup(title='Invalid Login',
                   content=Label(text='Invalid username or password.'),
@@ -207,7 +210,7 @@ kv = Builder.load_file("kivyDesign.kv")
 
 def info():
     print(dir(self.app.root))
-    
+
 
 def add_label(self):
     print('add_label--did this activate?')
@@ -224,23 +227,21 @@ class WhatSticksHealth(MDApp):#app
         self.theme_cls.theme_style ="Light"
         self.theme_cls.primary_palette = "DeepOrange"
 
-        
+
 
         self.sm = WindowManager()
-        
+
         self.sm.add_widget(WindowLogin(name="login"))
         self.sm.add_widget(WindowAdd(name="activity_add"))
         self.sm.add_widget(WindowList(name="activity_list"))
-            
+
         self.sm.current = "login"
-        
-        
-        
-        
+
+
+
+
         return self.sm
 
 
 if __name__ == "__main__":
     WhatSticksHealth().run()
-    
-            
